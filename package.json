@@ -1,0 +1,52 @@
+{
+  "name": "electron-updater-epipe",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.cjs",
+  "type": "module",
+  "scripts": {
+    "build": "npx electron-builder -l",
+    "copy": "cp installers/electron-updater-epipe-linux.AppImage .",
+    "bump": "node -e 'let fs = require(`fs`); let pj = require(`./package.json`); pj.version = `0.0.2`; fs.writeFileSync(`package.json`, JSON.stringify(pj, null, 2))'",
+    "server": "node -e 'let e = require(`express`); let a = e(); a.use(e.static(`installers`)).listen(9099, () => console.log(`listening`))'",
+    "setup": "npm run build && npm run copy && npm run bump && npm run build && npm run unbump && npm run server",
+    "unbump": "node -p -e 'let fs = require(`fs`); let pj = require(`./package.json`); pj.version = `0.0.1`; fs.writeFileSync(`package.json`, JSON.stringify(pj, null, 2))'",
+    "kill": "kill $(ps -e | grep electron-update | awk '{ORS=\" \"; print $1 }')"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "electron-updater": "6.0.0-alpha.8",
+    "express": "4.18.2"
+  },
+  "devDependencies": {
+    "electron": "22.0.3",
+    "electron-builder": "23.6.0",
+    "electron-packager": "17.1.1"
+  },
+  "build": {
+    "electronVersion": "22.0.3",
+    "appId": "electron-update-epipe",
+    "productName": "electron-updater-epipe",
+    "artifactName": "${name}-${os}.${ext}",
+    "publish": {
+      "provider": "generic",
+      "url": "http://localhost:9099",
+      "channel": "latest",
+      "publishAutoUpdate": true,
+      "useMultipleRangeRequest": false
+    },
+    "directories": {
+      "output": "installers"
+    },
+    "linux": {
+      "synopsis": "electron-updater-epipe",
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": "x64"
+        }
+      ]
+    }
+  }
+}
